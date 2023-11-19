@@ -10,7 +10,7 @@ type CartServiceInterface interface {
 	DeleteCart(int64) error
 	UpdateCart(*models.Cart) (int64, error)
 	FindCartByID(int64) (*models.Cart, error)
-	FindAll() ([]*models.Cart, error)
+	FindAll(int64) ([]*models.Cart, error)
 }
 
 type CartService struct {
@@ -25,8 +25,8 @@ func (c *CartService) AddCart(cart *models.Cart) (int64, error) {
 	return c.CartDAO.CreateCart(cart)
 }
 
-func (c *CartService) DeleteCart(Id int64) error {
-	return c.CartDAO.DeleteCart(Id)
+func (c *CartService) DeleteCart(userId int64) error {
+	return c.CartDAO.DeleteCart(userId)
 }
 
 func (c *CartService) UpdateCart(cart *models.Cart) (int64, error) {
@@ -37,7 +37,6 @@ func (c *CartService) FindCartByID(Id int64) (*models.Cart, error) {
 	return c.CartDAO.FindCartByID(Id)
 }
 
-func (c *CartService) FindAll() ([]*models.Cart, error) {
-	return c.CartDAO.FindAll()
+func (c *CartService) FindAll(UserId int64) ([]*models.Cart, error) {
+	return c.CartDAO.FindAll(UserId)
 }
-

@@ -13,11 +13,15 @@ type CartDAOInterface interface {
 	DeleteCart(int64) error
 	UpdateCart(*models.Cart) (int64, error)
 	FindCartByID(Id int64) (*models.Cart, error)
-	FindAll() ([]*models.Cart, error)
+	FindAll(int64) ([]*models.Cart, error)
 }
 
 type CartDAO struct {
 	db *gorm.DB
+}
+
+func NewCartDAO(db *gorm.DB) CartDAOInterface {
+	return &CartDAO{db: db}
 }
 
 func (c *CartDAO) InitTable() {
@@ -34,8 +38,9 @@ func (c *CartDAO) CreateCart(cart *models.Cart) (int64, error) {
 	return res.RowsAffected, res.Error
 }
 
-func (c *CartDAO) DeleteCart(Id int64) error {
-	if err := c.db.Delete(&models.Cart{}, Id).Error; err != nil {
+// DeleteCart 删除购物车根据用户id
+func (c *CartDAO) DeleteCart(userId int64) error {
+	if err := c.db.Where("user_id = ?", userId).Delete(&models.Cart{}).Error; err != nil {
 		return err
 	}
 	return nil
@@ -57,10 +62,11 @@ func (c *CartDAO) FindCartByID(Id int64) (*models.Cart, error) {
 	return cart, nil
 }
 
-func (c *CartDAO) FindAll() ([]*models.Cart, error) {
+func (c *CartDAO) FindAll(UserId int64) ([]*models.Cart, error) {
 	var carts []*models.Cart
-	if err := c.db.Find(&carts).Error; err != nil {
-		return nil, err
+	res := c.db.Find(&carts, "user_id = ?", UserId)
+	if res.Error != nil {
+		return nil, res.Error
 	}
 	return carts, nil
 }

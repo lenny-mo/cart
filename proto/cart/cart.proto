@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package go.micro.service.cart;
+
+option go_package = "./cart";
+
+service Cart {
+	rpc Add(AddCartRequest) returns (AddCartResponse) {}	
+	rpc FindAll(FindAllCartRequest) returns (FindAllCartResponse) {}
+	rpc CheckOutCart(CheckOutCartRequest) returns (CheckOutCartResponse) {}
+}
+
+message AddCartRequest {
+	string userId = 1;
+	string skuid = 2;
+	int32 quantity = 3;
+	google.protobuf.Timestamp time = 4; 
+}
+
+message AddCartResponse {
+	string code = 1;
+	string msg = 2;
+}
+
+
+message FindAllCartRequest {
+	string userId = 1;
+}
+
+message FindAllCartResponse {
+	string code = 1;
+	string msg = 2;
+	repeated CartItem cartItems = 3;
+}
+
+message CartItem {
+	string skuid = 1;
+	int32 quantity = 2;
+	google.protobuf.Timestamp time = 3; 
+}
+
+message CheckOutCartRequest {
+	string userId = 1;
+}
+
+message CheckOutCartResponse {
+	string code = 1;
+	string msg = 2;
+}
