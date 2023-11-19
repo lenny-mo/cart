@@ -1,4 +1,4 @@
-module cart
+module github.com/lenny-mo/cart
 
 go 1.13
 
