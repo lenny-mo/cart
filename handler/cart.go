@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"cart/domain/models"
-	"cart/domain/services"
-	"cart/proto/cart"
+	"github.com/lenny-mo/cart/domain/models"
+	"github.com/lenny-mo/cart/domain/services"
+	"github.com/lenny-mo/cart/proto/cart"
 	"context"
 	"strconv"
 

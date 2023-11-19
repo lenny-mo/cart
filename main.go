@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"strconv"
 
-	"cart/conf"
-	"cart/domain/models"
-	"cart/handler"
-	"cart/utils"
+	"github.com/lenny-mo/cart/conf"
+	"github.com/lenny-mo/cart/domain/models"
+	"github.com/lenny-mo/cart/handler"
+	"github.com/lenny-mo/cart/utils"
 
-	"cart/domain/dao"
+	"github.com/lenny-mo/cart/domain/dao"
 
-	"cart/domain/services"
+	"github.com/lenny-mo/cart/domain/services"
 
-	"cart/proto/cart"
+	"github.com/lenny-mo/cart/proto/cart"
 
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/registry"

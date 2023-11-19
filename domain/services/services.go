@@ -1,8 +1,8 @@
 package services
 
 import (
-	"cart/domain/dao"
-	"cart/domain/models"
+	"github.com/lenny-mo/cart/domain/dao"
+	"github.com/lenny-mo/cart/domain/models"
 )
 
 type CartServiceInterface interface {
