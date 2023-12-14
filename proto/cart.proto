@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package go.micro.service.cart;
+
+option go_package = "./cart";
+
+service Cart {
+
+	// 加入购物车，status设置为0 表示等待支付状态
+	rpc Add(AddCartRequest) returns (AddCartResponse) {}
+	// 更新数量
+	rpc Update(UpdateRequest) returns (UpdateResponse) {}
+	// 从购物车中删除某个商品，把这个商品的status设置为2，表示discard 
+	rpc Delete(DeleteRequest) returns (DeleteResponse) {}
+	rpc FindAll(FindAllCartRequest) returns (FindAllCartResponse) {}
+	// checkout cart 下单，需要创建一条order表的记录并且插入到order表中
+	// 把所有这个user的商品信息搜集起来，并且计算总金额， 在这个过程中需要把每个商品的status标记为1，也就是“被结算”状态
+	// 写一条记录，这个记录是要插入到order表中，并且等待支付
+	rpc CheckOutCart(CheckOutCartRequest) returns (CheckOutCartResponse) {}
+}
+
+message AddCartRequest {
+	string userId = 1;
+	string skuid = 2;
+	int32 quantity = 3;
+	google.protobuf.Timestamp time = 4; 
+}
+
+message AddCartResponse {
+	string code = 1;
+	string msg = 2;
+}
+
+
+message FindAllCartRequest {
+	string userId = 1;
+}
+
+message FindAllCartResponse {
+	string code = 1;
+	string msg = 2;
+	repeated CartItem cartItems = 3;
+}
+
+enum CartStatus {
+	UNCHECKOUT = 0; // 还没有支付的商品
+	CHECKOUT = 1; 	// 已经被添加到订单准备支付的商品
+	DISCARD = 2;	// 被抛弃的商品
+}
+
+message CartItem {
+	string skuid = 1;
+	int32 quantity = 2;
+	google.protobuf.Timestamp time = 3; 
+	CartStatus status = 4;
+}
+
+message UpdateRequest {
+	string userid = 1;
+	string skuid =2; 
+}
+
+message UpdateResponse {
+	string code = 1;
+	string msg = 2;
+}
+
+message DeleteRequest {
+	string userid = 1;
+	string skuid = 2;
+}
+
+message DeleteResponse {
+	string code = 1;
+	string msg = 2;
+}
+
+message CheckOutCartRequest {
+	string userId = 1;
+}
+
+message CheckOutCartResponse {
+	string code = 1;
+	string msg = 2;
+}

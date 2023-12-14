@@ -5,7 +5,7 @@ MODIFY= proto/
 .PHONY: proto
 proto:
     
-	protoc  --micro_out=${MODIFY} --go_out=${MODIFY} proto/cart/cart.proto
+	protoc  --micro_out=${MODIFY} --go_out=${MODIFY} proto/cart.proto
 
 .PHONY: build
 build: proto
