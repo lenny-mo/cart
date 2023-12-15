@@ -9,7 +9,7 @@ type CartServiceInterface interface {
 	AddCart(*models.Cart) (int64, error)
 	DeleteCart(int64) error
 	UpdateCart(*models.Cart) (int64, error)
-	FindCartByID(int64) (*models.Cart, error)
+	FindCartByUserIDandSKUID(userid, skuid string) (*models.Cart, error)
 	FindAll(int64) ([]*models.Cart, error)
 }
 
@@ -33,8 +33,8 @@ func (c *CartService) UpdateCart(cart *models.Cart) (int64, error) {
 	return c.CartDAO.UpdateCart(cart)
 }
 
-func (c *CartService) FindCartByID(Id int64) (*models.Cart, error) {
-	return c.CartDAO.FindCartByID(Id)
+func (c *CartService) FindCartByUserIDandSKUID(userid, skuid string) (*models.Cart, error) {
+	return c.CartDAO.FindCartByUserIDandSKUID(userid, skuid)
 }
 
 func (c *CartService) FindAll(UserId int64) ([]*models.Cart, error) {

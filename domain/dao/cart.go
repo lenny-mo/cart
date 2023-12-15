@@ -12,7 +12,7 @@ type CartDAOInterface interface {
 	CreateCart(*models.Cart) (int64, error)
 	DeleteCart(int64) error
 	UpdateCart(*models.Cart) (int64, error)
-	FindCartByID(Id int64) (*models.Cart, error)
+	FindCartByUserIDandSKUID(userid, skuid string) (*models.Cart, error)
 	FindAll(int64) ([]*models.Cart, error)
 }
 
@@ -47,16 +47,13 @@ func (c *CartDAO) DeleteCart(userId int64) error {
 }
 
 func (c *CartDAO) UpdateCart(cart *models.Cart) (int64, error) {
-	res := c.db.Save(cart) // 如果没有包含主键，会调用Create方法 否则调用Update方法
-	if err := res.Error; err != nil {
-		return res.RowsAffected, err
-	}
+	res := c.db.Model(&models.Cart{}).Updates(cart)
 	return res.RowsAffected, res.Error
 }
 
-func (c *CartDAO) FindCartByID(Id int64) (*models.Cart, error) {
+func (c *CartDAO) FindCartByUserIDandSKUID(userid, skuid string) (*models.Cart, error) {
 	cart := &models.Cart{}
-	if err := c.db.First(cart, Id).Error; err != nil {
+	if err := c.db.Where(" user_id = ? AND sku_id = ?", userid, skuid).Find(cart).Error; err != nil {
 		return nil, err
 	}
 	return cart, nil

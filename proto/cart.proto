@@ -23,9 +23,7 @@ service Cart {
 
 message AddCartRequest {
 	string userId = 1;
-	string skuid = 2;
-	int32 quantity = 3;
-	google.protobuf.Timestamp time = 4; 
+	CartItem item = 2; 	// 添加的商品信息
 }
 
 message AddCartResponse {
@@ -58,8 +56,8 @@ message CartItem {
 }
 
 message UpdateRequest {
-	string userid = 1;
-	string skuid =2; 
+	string userId = 1;
+	CartItem item = 2; 
 }
 
 message UpdateResponse {
