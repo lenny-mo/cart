@@ -46,8 +46,10 @@ func (c *CartDAO) DeleteCart(userId int64) error {
 	return nil
 }
 
+// 使用map更新，因为status默认零值，使用结构体会对零值不更新
 func (c *CartDAO) UpdateCart(cart *models.Cart) (int64, error) {
-	res := c.db.Model(&models.Cart{}).Updates(cart)
+	res := c.db.Model(&models.Cart{}).Where("user_id = ? AND sku_id = ?", cart.UserId, cart.SKUId).Updates(
+		map[string]interface{}{"count": cart.Count, "status": cart.Status, "timestamp": cart.Timestamp})
 	return res.RowsAffected, res.Error
 }
 
