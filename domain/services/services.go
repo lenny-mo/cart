@@ -11,6 +11,7 @@ type CartServiceInterface interface {
 	UpdateCart(*models.Cart) (int64, error)
 	FindCartByUserIDandSKUID(userid, skuid string) (*models.Cart, error)
 	FindAll(int64) ([]*models.Cart, error)
+	FindAllByUserIdForCheckout(userid int64) ([]*models.Cart, error)
 }
 
 type CartService struct {
@@ -39,4 +40,10 @@ func (c *CartService) FindCartByUserIDandSKUID(userid, skuid string) (*models.Ca
 
 func (c *CartService) FindAll(UserId int64) ([]*models.Cart, error) {
 	return c.CartDAO.FindAll(UserId)
+}
+
+// FindAllByUserIdForCheckout 根据userid 获取status为0的商品
+func (c *CartService) FindAllByUserIdForCheckout(userid int64) ([]*models.Cart, error) {
+
+	return nil, nil
 }

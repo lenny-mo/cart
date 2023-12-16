@@ -6,6 +6,7 @@ import (
 
 	"github.com/lenny-mo/cart/conf"
 	"github.com/lenny-mo/cart/domain/models"
+	"github.com/lenny-mo/cart/global"
 	"github.com/lenny-mo/cart/handler"
 	"github.com/lenny-mo/cart/utils"
 
@@ -58,7 +59,7 @@ func main() {
 	opentracing.SetGlobalTracer(tracer) // 设置全局的链路追踪
 
 	// 3. 创建服务
-	service := micro.NewService(
+	global.GlobalRPCService = micro.NewService(
 		micro.Name("go.micro.service.cart"),
 		micro.Version("latest"),
 		micro.Address("127.0.0.1:8083"), // 服务监听地址
@@ -88,19 +89,19 @@ func main() {
 	}
 
 	// 6. service初始化
-	service.Init()
+	global.GlobalRPCService.Init()
 
 	// 7. 创建service 和 handler 并且注册服务
 	cartDAO := dao.NewCartDAO(db)
 	cartService := services.NewCartService(cartDAO.(*dao.CartDAO))
-	err = cart.RegisterCartHandler(service.Server(), &handler.CartHandler{CartService: *cartService.(*services.CartService)})
+	err = cart.RegisterCartHandler(global.GlobalRPCService.Server(), &handler.CartHandler{CartService: *cartService.(*services.CartService)})
 	if err != nil {
 		fmt.Println(err)
 		panic(err)
 	}
 
 	// 8. 启动service
-	if err = service.Run(); err != nil {
+	if err = global.GlobalRPCService.Run(); err != nil {
 		fmt.Println(err)
 		panic(err)
 	}

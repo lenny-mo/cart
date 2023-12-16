@@ -2,12 +2,17 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
 
+	"github.com/lenny-mo/order/proto/order"
+	"github.com/lenny-mo/order/utils"
+
 	"github.com/lenny-mo/cart/domain/models"
 	"github.com/lenny-mo/cart/domain/services"
+	"github.com/lenny-mo/cart/global"
 	"github.com/lenny-mo/cart/proto/cart"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -70,6 +75,7 @@ func (c *CartHandler) Add(ctx context.Context, request *cart.AddCartRequest, res
 func (c *CartHandler) FindAll(ctx context.Context, req *cart.FindAllCartRequest, res *cart.FindAllCartResponse) error {
 	reqUserId, err := strconv.ParseInt(req.UserId, 10, 64)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
@@ -145,13 +151,38 @@ func (c *CartHandler) Delete(ctx context.Context, req *cart.DeleteRequest, res *
 }
 
 // CheckOutCart 清空购物车
-func (c *CartHandler) CheckOutCart(ctx context.Context, request *cart.CheckOutCartRequest, response *cart.CheckOutCartResponse) error {
-	reqUserId, err := strconv.ParseInt(request.UserId, 10, 64)
+func (c *CartHandler) CheckOutCart(ctx context.Context, req *cart.CheckOutCartRequest, res *cart.CheckOutCartResponse) error {
+	reqUserId, err := strconv.ParseInt(req.UserId, 10, 64)
 	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	// 1. 先去cart 表根据userid, status= 0 的商品信息搜集item slice，在这个过程中需要把每个商品的status标记为1，也就是“被结算”状态
+	items, err := c.CartService.FindAllByUserIdForCheckout(reqUserId)
+
+	// 2. 把item序列化
+	bytes, err := json.Marshal(items)
+	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
-	err = c.CartService.DeleteCart(reqUserId)
+	// 3. 调用order的create rpc请求, 生成一条order记录 插入到order表中
+	client := order.NewOrderService("go.micro.service.order", global.GetGlobalRPCService().Client())
+	orderRes, err := client.InsertOrder(context.TODO(), &order.InserRequest{
+		OrderData: &order.OrderInfo{
+			OrderId:      utils.UUID(),
+			OrderVersion: 1,
+			UserId:       reqUserId,
+			OrderData:    string(bytes),
+			Status:       order.OrderStatus_UNPAID,
+		},
+	})
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 
-	return err
+	res.Msg = "order row affected: " + strconv.Itoa(int(orderRes.RowsAffected))
+	return nil
 }
