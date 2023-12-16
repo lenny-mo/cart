@@ -164,6 +164,8 @@ func (c *CartHandler) CheckOutCart(ctx context.Context, req *cart.CheckOutCartRe
 		return err
 	}
 
+	fmt.Println("find items: ", items)
+
 	// 2. 在这个过程中需要把每个商品的status标记为1，也就是“被结算”状态，并且更新每个item的状态
 	for _, v := range items {
 		v.Status = 1

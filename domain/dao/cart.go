@@ -1,6 +1,8 @@
 package dao
 
 import (
+	"strconv"
+
 	"github.com/lenny-mo/cart/domain/models"
 
 	"gorm.io/gorm"
@@ -73,7 +75,7 @@ func (c *CartDAO) FindAll(UserId int64) ([]*models.Cart, error) {
 
 func (c *CartDAO) FindAllByUserIdForCheckout(userid int64) ([]*models.Cart, error) {
 	var carts []*models.Cart
-	res := c.db.Where(&carts, "user_id = ? and status = ?", userid, 0)
+	res := c.db.Where("user_id = ? and status = ?", strconv.FormatInt(userid, 10), "0").Find(&carts)
 	if res.Error != nil {
 		return nil, res.Error
 	}
