@@ -157,10 +157,20 @@ func (c *CartHandler) CheckOutCart(ctx context.Context, req *cart.CheckOutCartRe
 		fmt.Println(err)
 		return err
 	}
-	// 1. 先去cart 表根据userid, status= 0 的商品信息搜集item slice，在这个过程中需要把每个商品的status标记为1，也就是“被结算”状态
+	// 1. 先去cart 表根据userid, status= 0 的商品信息搜集item slice
 	items, err := c.CartService.FindAllByUserIdForCheckout(reqUserId)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 
-	// 2. 把item序列化
+	// 2. 在这个过程中需要把每个商品的status标记为1，也就是“被结算”状态，并且更新每个item的状态
+	for _, v := range items {
+		v.Status = 1
+		c.CartService.UpdateCart(v)
+	}
+
+	// 把item序列化
 	bytes, err := json.Marshal(items)
 	if err != nil {
 		fmt.Println(err)

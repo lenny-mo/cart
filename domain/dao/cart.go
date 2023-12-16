@@ -73,7 +73,7 @@ func (c *CartDAO) FindAll(UserId int64) ([]*models.Cart, error) {
 
 func (c *CartDAO) FindAllByUserIdForCheckout(userid int64) ([]*models.Cart, error) {
 	var carts []*models.Cart
-	res := c.db.Find(&carts, "user_id = ? and status = ?", userid, 0)
+	res := c.db.Where(&carts, "user_id = ? and status = ?", userid, 0)
 	if res.Error != nil {
 		return nil, res.Error
 	}
