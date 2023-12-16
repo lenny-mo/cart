@@ -14,6 +14,7 @@ type CartDAOInterface interface {
 	UpdateCart(*models.Cart) (int64, error)
 	FindCartByUserIDandSKUID(userid, skuid string) (*models.Cart, error)
 	FindAll(int64) ([]*models.Cart, error)
+	FindAllByUserIdForCheckout(int64) ([]*models.Cart, error)
 }
 
 type CartDAO struct {
@@ -64,6 +65,15 @@ func (c *CartDAO) FindCartByUserIDandSKUID(userid, skuid string) (*models.Cart, 
 func (c *CartDAO) FindAll(UserId int64) ([]*models.Cart, error) {
 	var carts []*models.Cart
 	res := c.db.Find(&carts, "user_id = ?", UserId)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return carts, nil
+}
+
+func (c *CartDAO) FindAllByUserIdForCheckout(userid int64) ([]*models.Cart, error) {
+	var carts []*models.Cart
+	res := c.db.Find(&carts, "user_id = ? and status = ?", userid, 0)
 	if res.Error != nil {
 		return nil, res.Error
 	}

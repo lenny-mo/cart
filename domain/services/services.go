@@ -44,6 +44,6 @@ func (c *CartService) FindAll(UserId int64) ([]*models.Cart, error) {
 
 // FindAllByUserIdForCheckout 根据userid 获取status为0的商品
 func (c *CartService) FindAllByUserIdForCheckout(userid int64) ([]*models.Cart, error) {
-
+	c.CartDAO.FindAllByUserIdForCheckout(userid)
 	return nil, nil
 }
