@@ -8,7 +8,7 @@ import (
 	"github.com/lenny-mo/cart/domain/models"
 	"github.com/lenny-mo/cart/global"
 	"github.com/lenny-mo/cart/handler"
-	"github.com/lenny-mo/cart/utils"
+	"github.com/lenny-mo/emall-utils/tracer"
 
 	"github.com/lenny-mo/cart/domain/dao"
 
@@ -49,18 +49,19 @@ func main() {
 		}
 	})
 
-	// 链路追踪
-	tracer, tracerio, err := utils.NewTracer("cart-server", "127.0.0.1:6831")
+	serviceName := "go.micro.service.cart"
+	// 3 链路追踪
+	err = tracer.InitTracer(serviceName, "127.0.0.1:6831")
 	if err != nil {
 		fmt.Println(err)
-		panic(err)
+		return
 	}
-	defer tracerio.Close()
-	opentracing.SetGlobalTracer(tracer) // 设置全局的链路追踪
+	defer tracer.Closer.Close()
+	opentracing.SetGlobalTracer(tracer.Tracer)
 
 	// 3. 创建服务
 	global.GlobalRPCService = micro.NewService(
-		micro.Name("go.micro.service.cart"),
+		micro.Name(serviceName),
 		micro.Version("latest"),
 		micro.Address("127.0.0.1:8083"), // 服务监听地址
 		// 使用consul注册中心
