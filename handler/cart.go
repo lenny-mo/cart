@@ -6,7 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
+	m "github.com/lenny-mo/emall-utils/metrics"
 	"github.com/lenny-mo/order/proto/order"
 	"github.com/lenny-mo/order/utils"
 
@@ -37,7 +39,24 @@ type CartHandler struct {
 	CartService services.CartService
 }
 
+// 用于指定prometheus监控label
+const (
+	SERVICE = "cart"
+	VERSION = "v1.0.0"
+	OS      = "arm64-darwin"
+)
+
 func (c *CartHandler) Add(ctx context.Context, request *cart.AddCartRequest, response *cart.AddCartResponse) error {
+	// prometheus 请求数+1
+	m.CounterRequestProcess(SERVICE, VERSION, OS)
+	// 记录支付处理开始时间
+	startTime := time.Now()
+	defer func() {
+		duration := time.Since(startTime).Seconds()
+		m.RecordPaymentResponseTime(SERVICE, VERSION, OS, duration) // Histogram 指标
+		m.TaskExecutionTime(SERVICE, VERSION, OS, duration)         // Summary 指标
+	}()
+
 	// 获取userid
 	reqUserId, err := strconv.ParseInt(request.UserId, 10, 64)
 	if err != nil {
@@ -73,6 +92,16 @@ func (c *CartHandler) Add(ctx context.Context, request *cart.AddCartRequest, res
 }
 
 func (c *CartHandler) FindAll(ctx context.Context, req *cart.FindAllCartRequest, res *cart.FindAllCartResponse) error {
+	// prometheus 请求数+1
+	m.CounterRequestProcess(SERVICE, VERSION, OS)
+	// 记录支付处理开始时间
+	startTime := time.Now()
+	defer func() {
+		duration := time.Since(startTime).Seconds()
+		m.RecordPaymentResponseTime(SERVICE, VERSION, OS, duration) // Histogram 指标
+		m.TaskExecutionTime(SERVICE, VERSION, OS, duration)         // Summary 指标
+	}()
+
 	reqUserId, err := strconv.ParseInt(req.UserId, 10, 64)
 	if err != nil {
 		fmt.Println(err)
@@ -98,6 +127,16 @@ func (c *CartHandler) FindAll(ctx context.Context, req *cart.FindAllCartRequest,
 }
 
 func (c *CartHandler) Update(ctx context.Context, req *cart.UpdateRequest, res *cart.UpdateResponse) error {
+	// prometheus 请求数+1
+	m.CounterRequestProcess(SERVICE, VERSION, OS)
+	// 记录支付处理开始时间
+	startTime := time.Now()
+	defer func() {
+		duration := time.Since(startTime).Seconds()
+		m.RecordPaymentResponseTime(SERVICE, VERSION, OS, duration) // Histogram 指标
+		m.TaskExecutionTime(SERVICE, VERSION, OS, duration)         // Summary 指标
+	}()
+
 	// 根据rpc传递的参数item 构造用于数据库更新的model
 	// 获取userid
 	uid, err := strconv.ParseInt(req.UserId, 10, 64)
@@ -133,6 +172,16 @@ func (c *CartHandler) Update(ctx context.Context, req *cart.UpdateRequest, res *
 
 // 从购物车中删除某个商品，把这个商品的status设置为2，表示discard
 func (c *CartHandler) Delete(ctx context.Context, req *cart.DeleteRequest, res *cart.DeleteResponse) error {
+	// prometheus 请求数+1
+	m.CounterRequestProcess(SERVICE, VERSION, OS)
+	// 记录支付处理开始时间
+	startTime := time.Now()
+	defer func() {
+		duration := time.Since(startTime).Seconds()
+		m.RecordPaymentResponseTime(SERVICE, VERSION, OS, duration) // Histogram 指标
+		m.TaskExecutionTime(SERVICE, VERSION, OS, duration)         // Summary 指标
+	}()
+
 	// 找到这条记录
 	data, err := c.CartService.FindCartByUserIDandSKUID(req.Userid, req.Skuid)
 	if err != nil {
@@ -152,6 +201,18 @@ func (c *CartHandler) Delete(ctx context.Context, req *cart.DeleteRequest, res *
 
 // CheckOutCart 清空购物车
 func (c *CartHandler) CheckOutCart(ctx context.Context, req *cart.CheckOutCartRequest, res *cart.CheckOutCartResponse) error {
+	// prometheus 请求数+1
+	m.CounterRequestProcess(SERVICE, VERSION, OS)
+	// cart interaction 请求数+1
+	m.Counterinteraction(SERVICE, VERSION, OS)
+	// 记录支付处理开始时间
+	startTime := time.Now()
+	defer func() {
+		duration := time.Since(startTime).Seconds()
+		m.RecordPaymentResponseTime(SERVICE, VERSION, OS, duration) // Histogram 指标
+		m.TaskExecutionTime(SERVICE, VERSION, OS, duration)         // Summary 指标
+	}()
+
 	reqUserId, err := strconv.ParseInt(req.UserId, 10, 64)
 	if err != nil {
 		fmt.Println(err)

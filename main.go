@@ -8,6 +8,7 @@ import (
 	"github.com/lenny-mo/cart/domain/models"
 	"github.com/lenny-mo/cart/global"
 	"github.com/lenny-mo/cart/handler"
+	m "github.com/lenny-mo/emall-utils/metrics"
 	"github.com/lenny-mo/emall-utils/tracer"
 
 	"github.com/lenny-mo/cart/domain/dao"
@@ -19,6 +20,7 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-plugins/registry/consul/v2"
+	"github.com/micro/go-plugins/wrapper/monitoring/prometheus/v2"
 	ratelimit "github.com/micro/go-plugins/wrapper/ratelimiter/uber/v2"
 	opentracing2 "github.com/micro/go-plugins/wrapper/trace/opentracing/v2"
 	"github.com/opentracing/opentracing-go"
@@ -59,6 +61,9 @@ func main() {
 	defer tracer.Closer.Close()
 	opentracing.SetGlobalTracer(tracer.Tracer)
 
+	// 启动prometheus
+	m.PrometheusBoot(9092)
+
 	// 3. 创建服务
 	global.GlobalRPCService = micro.NewService(
 		micro.Name(serviceName),
@@ -70,6 +75,8 @@ func main() {
 		micro.WrapHandler(opentracing2.NewHandlerWrapper(opentracing.GlobalTracer())),
 		// uber 漏桶 添加限流 每秒处理1000·个请求
 		micro.WrapHandler(ratelimit.NewHandlerWrapper(conf.QPS)),
+		// 添加prometheus
+		micro.WrapHandler(prometheus.NewHandlerWrapper()),
 	)
 
 	// 4. 获取mysql配置
