@@ -2,12 +2,9 @@ package models
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type Cart struct {
-	gorm.Model
 	UserId    int64     `json:"user_id" gorm:"column:user_id;not_null"`
 	SKUId     int64     `json:"sku_id" gorm:"column:sku_id;not_null"`
 	Count     int32     `json:"count" gorm:"column:count;not_null"`
